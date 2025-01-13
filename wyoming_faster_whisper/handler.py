@@ -60,12 +60,10 @@ class FasterWhisperEventHandler(AsyncEventHandler):
                 "Audio stopped. Transcribing with initial prompt=%s",
                 self.initial_prompt,
             )
+            assert self._wav_file is not None
 
-            if self._wav_file is not None:
-                self._wav_file.close()
-                self._wav_file = None
-            else:
-                _LOGGER.error("self._wav_file is None. Unable to close.")
+            self._wav_file.close()
+            self._wav_file = None
 
             async with self.model_lock:
                 segments, _info = self.model.transcribe(
@@ -85,7 +83,6 @@ class FasterWhisperEventHandler(AsyncEventHandler):
             self._language = self.cli_args.language
 
             return False
-            
 
         if Transcribe.is_type(event.type):
             transcribe = Transcribe.from_event(event)
